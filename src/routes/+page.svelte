@@ -1,53 +1,49 @@
 <script lang="ts">
-    import { onMount } from "svelte";
-    import { getEstudiantes } from "./services";
-    import type { Estudiante } from "./types";
-
-    let estudiantes: Estudiante[] = [];
-    let loading = true;
-    let error = "";
-
-    onMount(async () => {
-        try {
-            estudiantes = await getEstudiantes();
-        } catch (e) {
-            error = "No se pudieron cargar los estudiantes";
-        } finally {
-            loading = false;
-        }
-    });
+    // Por ahora no necesitamos lógica
 </script>
 
-<h1>Lista de Estudiantes</h1>
-
-{#if loading}
-    <p>Cargando estudiantes...</p>
-{:else if error}
-    <p class="error">{error}</p>
-{:else}
-    <ul>
-        {#each estudiantes as estudiante}
-            <li>
-                <strong>{estudiante.nombre}</strong> - {estudiante.curso}
-            </li>
-        {/each}
-    </ul>
-{/if}
+<div class="landing">
+    <h1>Bienvenido a BRISA Frontend</h1>
+    <p>Este es un ejemplo de landing page estática para la app institucional</p>
+    <a href="#" class="btn">Comenzar</a>
+</div>
 
 <style>
+    .landing {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        font-family: sans-serif;
+        background: linear-gradient(to right, #4facfe, #00f2fe);
+        color: white;
+        text-align: center;
+        padding: 1rem;
+    }
+
     h1 {
-        font-size: 2rem;
+        font-size: 3rem;
         margin-bottom: 1rem;
     }
-    ul {
-        list-style: none;
-        padding: 0;
+
+    p {
+        font-size: 1.2rem;
+        margin-bottom: 2rem;
     }
-    li {
-        padding: 0.5rem;
-        border-bottom: 1px solid #ccc;
+
+    .btn {
+        background: white;
+        color: #4facfe;
+        padding: 0.8rem 1.5rem;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: bold;
+        transition: 0.3s;
     }
-    .error {
-        color: red;
+
+    .btn:hover {
+        background: #f0f0f0;
+        color: #0077cc;
     }
 </style>
