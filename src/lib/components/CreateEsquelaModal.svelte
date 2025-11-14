@@ -64,7 +64,7 @@
 
   async function cargarEstudiantesPorCurso(cursoId: number) {
     try {
-      const estudiantesDelCurso = await apiClient.get(`/api/courses/${cursoId}/students`);
+      const estudiantesDelCurso = await apiClient.get(`/courses/${cursoId}/students`);
       estudiantes = Array.isArray(estudiantesDelCurso) ? estudiantesDelCurso : [];
     } catch (err: any) {
       console.error('Error cargando estudiantes del curso:', err);

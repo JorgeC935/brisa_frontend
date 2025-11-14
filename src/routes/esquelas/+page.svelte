@@ -86,7 +86,7 @@
     try {
       // Cargar todos los cursos y sus estudiantes
       for (const course of courses) {
-        const students = await apiClient.get(`/api/courses/${course.id_curso}/students`);
+        const students = await apiClient.get(`/courses/${course.id_curso}/students`);
         if (Array.isArray(students)) {
           students.forEach((student: any) => {
             studentToCourseMap.set(student.id_estudiante, {
@@ -324,7 +324,7 @@
         <input 
           id="year-filter"
           type="number" 
-          placeholder="2024"
+        placeholder="2025"
           bind:value={selectedYear}
           min="2020"
           max="2030"
@@ -408,11 +408,11 @@
             <div class="stat-counts">
               <span class="stat-r">
                 <span class="icon-inline">{@html getIconSvg('trophy')}</span>
-                {stat.reconocimiento}R
+                R{stat.reconocimiento}
               </span>
               <span class="stat-o">
                 <span class="icon-inline">{@html getIconSvg('clipboard-list')}</span>
-                {stat.orientacion}O
+              O{stat.orientacion}
               </span>
             </div>
           </div>
