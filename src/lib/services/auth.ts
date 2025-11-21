@@ -95,11 +95,16 @@ class AuthService {
   getUserData(): Usuario | null {
     if (typeof window === 'undefined') return null;
     const data = localStorage.getItem(USER_KEY);
-    return data ? JSON.parse(data) : null;
+    const userData = data ? JSON.parse(data) : null;
+    console.log('📖 getUserData() devuelve:', userData);
+    console.log('📖 id_persona en getUserData:', userData?.id_persona);
+    return userData;
   }
 
   setUserData(user: Usuario): void {
     if (typeof window === 'undefined') return;
+    console.log('💾 setUserData() guardando:', user);
+    console.log('💾 id_persona que se guarda:', user?.id_persona);
     localStorage.setItem(USER_KEY, JSON.stringify(user));
   }
 
@@ -160,6 +165,9 @@ class AuthService {
   async getCurrentUser(): Promise<Usuario> {
     const response = await this.makeRequest<StandardApiResponse<Usuario>>('/auth/me');
     const userData = response.data || response as any;
+    console.log('🔍 Respuesta completa de /auth/me:', response);
+    console.log('🔍 userData extraído:', userData);
+    console.log('🔍 id_persona en userData:', userData?.id_persona);
     this.setUserData(userData);
     return userData;
   }

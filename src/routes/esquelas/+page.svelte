@@ -2,6 +2,7 @@
   import './esquela.css';
   import { onMount } from 'svelte';
   import { apiClient } from '$lib/services/api.js';
+  import { authService } from '$lib/services/auth.js';
   import type { EsquelaResponse, CodigoEsquela } from '$lib/types/api.js';
   import CreateEsquelaModal from '$lib/components/CreateEsquelaModal/CreateEsquelaModal.svelte';
   import { getIconSvg } from '$lib/components/svg';
@@ -139,6 +140,37 @@
       if (typeFilter) params.type = typeFilter;
       if (dateFrom) params.from = dateFrom;
       if (dateTo) params.to = dateTo;
+
+      // Get user data directly from localStorage
+      let currentUser = authService.getUserData();
+
+      // If id_persona is missing, refresh user data from API
+      if (!currentUser?.id_persona) {
+        console.log('⚠️ id_persona no encontrado en localStorage, llamando a /auth/me...');
+        try {
+          currentUser = await authService.getCurrentUser();
+        } catch (e) {
+          console.error("❌ Error al actualizar datos de usuario:", e);
+        }
+      }
+
+      console.log('🔍 Usuario actual para ranking:', currentUser);
+      console.log('🔍 id_persona:', currentUser?.id_persona);
+
+      const isAdmin = currentUser?.roles?.some((role: any) => 
+        role?.nombre === 'Administrativo' || role?.nombre === 'Administrador'
+      );
+
+      console.log('🔍 Es admin?:', isAdmin);
+
+      if (!isAdmin && currentUser?.id_persona) {
+        params.registrador_id = currentUser.id_persona;
+        console.log('✅ Agregando registrador_id:', params.registrador_id);
+      } else {
+        console.log('ℹ️ No se agrega registrador_id (es admin o no hay id_persona)');
+      }
+
+      console.log('📤 Parámetros finales para ranking:', params);
 
       const res = await apiClient.getReportsRanking(params);
       rankingData = res && res.data ? res.data : (Array.isArray(res) ? res : []);

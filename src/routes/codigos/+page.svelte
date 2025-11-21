@@ -96,11 +96,26 @@
         return;
       }
 
+      // Validar longitud del código (máximo 10 caracteres)
+      if (formData.codigo.length > 10) {
+        alert('El código no puede tener más de 10 caracteres');
+        return;
+      }
+
+      // Validar que el tipo sea válido
+      if (formData.tipo !== 'reconocimiento' && formData.tipo !== 'orientacion') {
+        alert('El tipo debe ser "reconocimiento" u "orientacion"');
+        return;
+      }
+
+      console.log('📤 Payload para crear código:', formData);
+
       await apiClient.createCodigoEsquela(formData);
       await loadCodigos();
       closeModals();
     } catch (err: any) {
-      console.error('Error creando código:', err);
+      console.error('❌ Error creando código:', err);
+      console.error('❌ Detalles del error:', err.details);
       alert('Error al crear el código: ' + (err.message || 'Error desconocido'));
     }
   }
@@ -114,11 +129,26 @@
         return;
       }
 
+      // Validar longitud del código (máximo 10 caracteres)
+      if (formData.codigo.length > 10) {
+        alert('El código no puede tener más de 10 caracteres');
+        return;
+      }
+
+      // Validar que el tipo sea válido
+      if (formData.tipo !== 'reconocimiento' && formData.tipo !== 'orientacion') {
+        alert('El tipo debe ser "reconocimiento" u "orientacion"');
+        return;
+      }
+
+      console.log('📤 Payload para actualizar código:', formData);
+
       await apiClient.updateCodigoEsquela(editingCodigo.id_codigo, formData);
       await loadCodigos();
       closeModals();
     } catch (err: any) {
-      console.error('Error actualizando código:', err);
+      console.error('❌ Error actualizando código:', err);
+      console.error('❌ Detalles del error:', err.details);
       alert('Error al actualizar el código: ' + (err.message || 'Error desconocido'));
     }
   }

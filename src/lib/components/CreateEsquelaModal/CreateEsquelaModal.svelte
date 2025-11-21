@@ -1,8 +1,12 @@
 <script lang="ts">
+  import { createEventDispatcher } from 'svelte';
   import { apiClient } from '$lib/services/api.js';
   import { authService } from '$lib/services/auth.js';
   import type { EsquelaCreate, CodigoEsquela, Estudiante, Profesor } from '$lib/types/api.js';
   import './CreateEsquelaModal.css';
+  
+  const dispatch = createEventDispatcher();
+  
   export let show = false;
   export let codigos: CodigoEsquela[] = [];
 
@@ -232,21 +236,24 @@
 
       const payload: any = {
         id_estudiante: idEstudiante,
-        fecha: fecha + 'T00:00:00.000Z',
+        fecha: fecha,  // Enviar solo la fecha en formato YYYY-MM-DD
         observaciones,
         codigos: codigosSeleccionados
       };
 
       // Solo incluir id_profesor si no es Profesor (Regente/Administrativo)
-      if (!isProfesor) {
+      if (!isProfesor && idProfesor) {
         payload.id_profesor = idProfesor;
       }
+
+      console.log('📤 Payload para crear esquela:', payload);
 
       await apiClient.createEsquela(payload);
 
       dispatch('created');
       cerrarModal();
     } catch (err: any) {
+      console.error('❌ Error creando esquela:', err);
       error = err.message || 'Error creando esquela';
     } finally {
       loading = false;
@@ -399,9 +406,9 @@
                   </button>
                 {/if}
               </div>
-              {#if showProfesorDropdown && filtrarProfesores().length > 0}
+              {#if showProfesorDropdown && profesoresFiltrados.length > 0}
                 <div class="dropdown">
-                  {#each filtrarProfesores() as profesor}
+                  {#each profesoresFiltrados as profesor}
                     <div class="dropdown-item" on:click={() => seleccionarProfesor(profesor)}>
                       <div class="item-main">
                         <strong>{profesor.nombre_completo}</strong>

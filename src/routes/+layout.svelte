@@ -10,6 +10,7 @@
 	let isAuthenticated = $state(false);
 	let currentUser = $state<any>(null);
 	let currentPath = $state('');
+	let sidebarCollapsed = $state(false);
 	const canManageCodigos = $derived(userIsAdmin(currentUser));
 
 	const menuItems = [
@@ -49,6 +50,10 @@
 			window.location.href = '/login';
 		}
 	}
+
+	function toggleSidebar() {
+		sidebarCollapsed = !sidebarCollapsed;
+	}
 </script>
 
 <svelte:head>
@@ -59,15 +64,20 @@
 	{@render children?.()}
 {:else if isAuthenticated}
 	<div class="app-layout">
-		<aside class="sidebar">
+		<aside class="sidebar" class:collapsed={sidebarCollapsed}>
 			<div class="sidebar-header">
-				<div class="logo">
-					<span class="logo-icon">{@html getIconSvg('graduation-cap')}</span>
-					<div class="logo-text">
-						<h1>BRISA</h1>
-						<span>Sistema Escolar</span>
+				<button class="toggle-sidebar-btn" onclick={toggleSidebar} aria-label="Toggle sidebar">
+					{@html getIconSvg('menu')}
+				</button>
+				{#if !sidebarCollapsed}
+					<div class="logo">
+						<span class="logo-icon">{@html getIconSvg('graduation-cap')}</span>
+						<div class="logo-text">
+							<h1>BRISA</h1>
+							<span>Sistema Escolar</span>
+						</div>
 					</div>
-				</div>
+				{/if}
 			</div>
 
 			<nav class="sidebar-nav">
@@ -75,28 +85,36 @@
 					<a 
 						href={item.href} 
 						class="nav-item" 
-						class:active={currentPath.startsWith(item.href) && item.href !== '#'}
+						class:active={currentPath === item.href && item.href !== '#'}
+						title={item.label}
 					>
 						<span class="nav-icon">{@html getIconSvg(item.icon)}</span>
-						<span class="nav-label">{item.label}</span>
+						{#if !sidebarCollapsed}
+							<span class="nav-label">{item.label}</span>
+						{/if}
 					</a>
 				{/each}
 				{#if canManageCodigos}
 					<a 
 						href="/codigos" 
 						class="nav-item" 
-						class:active={currentPath.startsWith('/codigos')}
+						class:active={currentPath === '/codigos'}
+						title="Códigos Esquelas"
 					>
 						<span class="nav-icon">{@html getIconSvg('code')}</span>
-						<span class="nav-label">Códigos Esquelas</span>
+						{#if !sidebarCollapsed}
+							<span class="nav-label">Códigos Esquelas</span>
+						{/if}
 					</a>
 				{/if}
 			</nav>
 
 			<div class="sidebar-footer">
-				<button class="nav-item logout-btn" onclick={handleLogout}>
+				<button class="nav-item logout-btn" onclick={handleLogout} title="Cerrar Sesión">
 					<span class="nav-icon">{@html getIconSvg('log-out')}</span>
-					<span class="nav-label">Cerrar Sesión</span>
+					{#if !sidebarCollapsed}
+						<span class="nav-label">Cerrar Sesión</span>
+					{/if}
 				</button>
 			</div>
 		</aside>
