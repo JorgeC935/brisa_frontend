@@ -26,7 +26,7 @@
 		{ label: 'Estudiantes', icon: 'graduation-cap', href: '#' },
 		{ label: 'Profesores', icon: 'user', href: '#' },
 		{ label: 'Cursos', icon: 'book-open', href: '#' },
-		{ label: 'Administrativos', icon: 'briefcase', href: '#' },
+		{ label: 'Administrativos', icon: 'briefcase', href: '/administrativos' },
 		{ label: 'Retiros Tempranos', icon: 'clock', href: '#' },
 		{ label: 'Incidentes', icon: 'alert-triangle', href: '#' },
 		{ label: 'Esquelas', icon: 'clipboard-list', href: '/esquelas' },

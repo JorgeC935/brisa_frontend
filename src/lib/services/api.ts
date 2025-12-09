@@ -6,6 +6,7 @@ import { coursesService } from './courses';
 import { personalService } from './personal';
 import { academicService } from './academic';
 import { esquelasService } from './esquelas';
+import { administrativosService } from './administrativos';
 import { http } from './http';
 
 // Objeto unificado para compatibilidad con el código existente
@@ -17,6 +18,7 @@ export const apiClient = {
 	...personalService,
 	...academicService,
 	...esquelasService,
+	...administrativosService,
 
 	// Passthroughs para compatibilidad con el código que usa apiClient.get(...)
 	get: http.get,
@@ -34,5 +36,6 @@ export {
 	coursesService,
 	personalService,
 	academicService,
-	esquelasService
+	esquelasService,
+	administrativosService
 };
