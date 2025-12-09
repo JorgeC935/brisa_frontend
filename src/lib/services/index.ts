@@ -1,0 +1,9 @@
+export { http } from './http';
+export { statusService } from './status';
+export { codigosService } from './codigos';
+export { estudiantesService } from './estudiantes';
+export { coursesService } from './courses';
+export { personalService } from './personal';
+export { academicService } from './academic';
+export { esquelasService } from './esquelas';
+export { apiClient } from './api';
