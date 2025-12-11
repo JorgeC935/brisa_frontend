@@ -9,6 +9,7 @@
 	import { goto } from "$app/navigation";
 	import { authStore } from "$lib/stores/Usuarios_Roles/auth.svelte";
 	import { getIconSvg } from "$lib/components/svg.js";
+	import type { ModuloSistema } from "$lib/types/Usuarios_Roles/auth";
 
 	let { children } = $props();
 	let sidebarCollapsed = $state(false);
@@ -26,20 +27,13 @@
 	);
 
 	const menuItems = [
-		{ label: "Dashboard", icon: "dashboard", href: "/" },
-		{ label: "Usuarios y Roles", icon: "users", href: "/Usuarios y Roles" },
-		{ label: "Estudiantes", icon: "graduation-cap", href: "/estudiantes" },
-		{ label: "Profesores", icon: "user", href: "/profesores" },
-		{ label: "Cursos", icon: "book-open", href: "/cursos" },
-		{
-			label: "Administrativos",
-			icon: "briefcase",
-			href: "/administrativos",
-		},
-		{ label: "Retiros Tempranos", icon: "clock", href: "/retiros" },
-		{ label: "Incidentes", icon: "alert-triangle", href: "/incidentes" },
-		{ label: "Esquelas", icon: "clipboard-list", href: "/esquelas" },
-		{ label: "Administración", icon: "settings", href: "/administracion" },
+		{ label: "Dashboard", icon: "dashboard", href: "/", modulo: null as ModuloSistema | null },
+		{ label: "Usuarios y Roles", icon: "users", href: "/Usuarios_Roles", modulo: "usuarios" as ModuloSistema },
+		{ label: "Profesores", icon: "user", href: "/profesores", modulo: "profesores" as ModuloSistema },
+		{ label: "Retiros Tempranos", icon: "clock", href: "/retiros", modulo: "retiros_tempranos" as ModuloSistema },
+		{ label: "Incidentes", icon: "alert-triangle", href: "/incidentes", modulo: "incidentes" as ModuloSistema },
+		{ label: "Esquelas", icon: "clipboard-list", href: "/esquelas", modulo: "esquelas" as ModuloSistema },
+		{ label: "Administración", icon: "settings", href: "/administracion", modulo: "administracion" as ModuloSistema },
 	];
 
 	const reportesSubmenu = [
@@ -47,7 +41,7 @@
 			label: "Usuarios y Roles",
 			icon: "users",
 			items: [
-				{ label: "Listado de Usuarios", href: "/Usuarios y Roles" },
+				{ label: "Listado de Usuarios", href: "/Usuarios_Roles" },
 			],
 		},
 		{
@@ -108,6 +102,16 @@
 			],
 		},
 	];
+
+	// Función para verificar si el usuario puede acceder a un módulo
+	function canAccessModule(modulo: ModuloSistema | null): boolean {
+		if (!modulo) return true; // Dashboard y módulos sin permiso siempre accesibles
+		return authStore.puedeAccederModulo(modulo);
+	}
+
+	function goToProfile() {
+		goto("/Usuarios_Roles/users/");
+	}
 
 	onMount(async () => {
 		// Inicializar authStore
@@ -183,19 +187,21 @@
 
 			<nav class="sidebar-nav">
 				{#each menuItems as item}
-					<a
-						href={item.href}
-						class="nav-item"
-						class:active={currentPath === item.href}
-						title={item.label}
-					>
-						<span class="nav-icon"
-							>{@html getIconSvg(item.icon)}</span
+					{#if canAccessModule(item.modulo)}
+						<a
+							href={item.href}
+							class="nav-item"
+							class:active={currentPath === item.href}
+							title={item.label}
 						>
-						{#if !sidebarCollapsed}
-							<span class="nav-label">{item.label}</span>
-						{/if}
-					</a>
+							<span class="nav-icon"
+								>{@html getIconSvg(item.icon)}</span
+							>
+							{#if !sidebarCollapsed}
+								<span class="nav-label">{item.label}</span>
+							{/if}
+						</a>
+					{/if}
 				{/each}
 
 				{#if canManageCodigos}
@@ -293,7 +299,7 @@
 						{@html getIconSvg("bell")}
 						<span class="badge">3</span>
 					</button>
-					<div class="user-profile">
+					<button class="user-profile" onclick={goToProfile}>
 						<div class="avatar">
 							{currentUser?.nombres?.[0] || "U"}{currentUser
 								?.usuario?.[0] || ""}
@@ -306,7 +312,7 @@
 								{currentUser?.rol || "Rol"}
 							</span>
 						</div>
-					</div>
+					</button>
 				</div>
 			</header>
 			<main class="content-area">

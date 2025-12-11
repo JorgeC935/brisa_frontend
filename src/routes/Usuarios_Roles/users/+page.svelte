@@ -24,39 +24,30 @@
   let loading = $state(true);
   let error = $state<string | null>(null);
 
-  onMount(async () => {
+ onMount(async () => {
     try {
       // 1. Obtener datos del usuario actual
       const meData: any = await api.getMe();
       
-      // 2. Extraer CI del usuario
-      const ci = meData.data?.ci;
-      
-      if (!ci) {
-        throw new Error('No se pudo obtener CI del usuario');
-      }
-      
-      // 3. Obtener datos completos de la persona usando CI
-      const personaData: any = await api.get(`/api/auth/ci/${ci}`);
-      
-      // 4. Combinar datos (meData ya tiene casi todo)
+      // 2. Usar solo los datos de meData (que ya tiene toda la información)
       user = {
         id_usuario: meData.data.id_usuario,
-        id_persona: personaData.data?.id_persona || 0,
+        id_persona: meData.data.id_persona || 0,
         usuario: meData.data.usuario,
         correo: meData.data.correo,
         nombres: meData.data.nombres,
         apellido_paterno: meData.data.apellido_paterno,
         apellido_materno: meData.data.apellido_materno,
         ci: meData.data.ci,
-        telefono: personaData.data?.telefono || 'No registrado',
-        direccion: personaData.data?.direccion || 'No registrada',
-        tipo_persona: personaData.data?.tipo_persona || 'N/A',
+        telefono: meData.data.telefono || 'No registrado',
+        direccion: meData.data.direccion || 'No registrada',
+        tipo_persona: meData.data.tipo_persona || 'N/A',
         is_active: meData.data.estado === 'activo'
       };
       
     } catch (err: any) {
       error = err.message || 'Error desconocido';
+      console.error('Error cargando perfil:', err);
     } finally {
       loading = false;
     }

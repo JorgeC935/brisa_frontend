@@ -233,8 +233,6 @@
   });
 </script>
 
-// UsuariosView.svelte - SOLO LOS CAMBIOS NECESARIOS
-
 <div class="usuarios-view-container">
   <div class="view-header">
     <h1 class="view-title">Administración de Personas, Roles y Permisos</h1>

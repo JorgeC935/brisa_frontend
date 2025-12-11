@@ -1,7 +1,6 @@
 <!--src/router/Usuarios y Roles/auth-->
 <script lang="ts">
-  import { authStore } from '../../../lib/stores/Usuarios_Roles/auth.svelte'
-
+  import { authStore } from '../../lib/stores/Usuarios_Roles/auth.svelte'
 
   let usuario = $state('');
   let contrasena = $state('');
@@ -20,11 +19,10 @@
     error = '';
 
     try {
-      const response = await authStore.login(usuario, contrasena);
-      console.log('Login exitoso:', response);
-      
-    } catch (err) {
-      
+      await authStore.login(usuario, contrasena);
+      window.location.href = '/esquelas';
+    } catch (err: any) {
+      error = err.message || 'Usuario o contraseña incorrectos';
       console.error('Error de login:', err);
     } finally {
       loading = false;
@@ -114,5 +112,5 @@
 </div>
 
 <style>
-  @import './styles/Login.css';
+  @import './Login.css';
 </style>
