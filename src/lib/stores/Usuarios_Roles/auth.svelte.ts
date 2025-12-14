@@ -3,6 +3,10 @@ import type { User, AuthState, ModuloSistema } from '../../types/Usuarios_Roles/
 import { api } from '../../services/api';
 
 class AuthStore {
+  // ========== CONSTANTES DE LOCALSTORAGE ==========
+  private readonly TOKEN_KEY = 'brisa_auth_token';
+  private readonly USER_KEY = 'brisa_user_data';
+
   private state = $state<AuthState>({
     user: null,
     token: null,
@@ -54,6 +58,7 @@ class AuthStore {
 
   async login(usuario: string, password: string) {
     try {
+      console.log('🔐 Intentando login para:', usuario);
       const response = await api.login(usuario, password);
       
       if (response.success && response.data) {
@@ -66,8 +71,9 @@ class AuthStore {
           permisos 
         } = response.data;
         
-        // Guardar token
-        localStorage.setItem('token', access_token);
+        // ✅ Guardar token con la clave correcta
+        localStorage.setItem(this.TOKEN_KEY, access_token);
+        console.log('✅ Token guardado en localStorage:', this.TOKEN_KEY);
         
         // Actualizar estado básico
         this.state.user = {
@@ -80,6 +86,8 @@ class AuthStore {
         this.state.token = access_token;
         this.state.isAuthenticated = true;
         
+        console.log('✅ Usuario autenticado:', username);
+        
         // ✅ CARGAR PERMISOS DETALLADOS DESPUÉS DEL LOGIN
         await this.cargarPermisosDetallados();
         
@@ -88,32 +96,48 @@ class AuthStore {
       
       throw new Error('Respuesta de login inválida');
     } catch (error) {
+      console.error('❌ Error en login:', error);
       this.logout();
       throw error;
     }
   }
 
   logout() {
+    console.log('🚪 Cerrando sesión...');
+    
     // Intentar cerrar sesión en el servidor
     if (this.state.token) {
       api.logout().catch(() => {
-        console.warn('No se pudo cerrar sesión en el servidor');
+        console.warn('⚠️ No se pudo cerrar sesión en el servidor');
       });
     }
     
-    localStorage.removeItem('token');
+    // Limpiar localStorage con las claves correctas
+    localStorage.removeItem(this.TOKEN_KEY);
+    localStorage.removeItem(this.USER_KEY);
+    console.log('🗑️ Token eliminado de localStorage');
+    
+    // Limpiar estado
     this.state.user = null;
     this.state.token = null;
     this.state.isAuthenticated = false;
+    
+    console.log('✅ Sesión cerrada');
   }
 
   async init() {
-    const token = localStorage.getItem('token');
+    console.log('🔄 Inicializando authStore...');
+    
+    // ✅ Buscar token con la clave correcta
+    const token = localStorage.getItem(this.TOKEN_KEY);
     
     if (!token) {
+      console.log('⚠️ No se encontró token en localStorage');
       this.state.isLoading = false;
       return;
     }
+
+    console.log('✅ Token encontrado, verificando con el backend...');
 
     try {
       // Verificar token con el backend
@@ -130,16 +154,20 @@ class AuthStore {
         this.state.token = token;
         this.state.isAuthenticated = true;
         
+        console.log('✅ Usuario verificado:', this.state.user.usuario);
+        
         // ✅ CARGAR PERMISOS DETALLADOS AL INICIAR
         await this.cargarPermisosDetallados();
       } else {
+        console.warn('⚠️ Respuesta inválida del backend');
         this.logout();
       }
     } catch (error) {
-      console.error('Error verificando token:', error);
+      console.error('❌ Error verificando token:', error);
       this.logout();
     } finally {
       this.state.isLoading = false;
+      console.log('✅ AuthStore inicializado');
     }
   }
 
@@ -151,6 +179,7 @@ class AuthStore {
    */
   async cargarPermisosDetallados() {
     try {
+      console.log('📋 Cargando permisos detallados...');
       const response = await api.getMisPermisos();
       
       if (response.success && response.data && this.state.user) {
@@ -296,18 +325,30 @@ class AuthStore {
 
   async refreshToken() {
     try {
+      console.log('🔄 Refrescando token...');
       const response = await api.refreshToken();
+      
       if (response.success && response.data?.access_token) {
-        localStorage.setItem('token', response.data.access_token);
+        localStorage.setItem(this.TOKEN_KEY, response.data.access_token);
         this.state.token = response.data.access_token;
+        console.log('✅ Token refrescado');
         return true;
       }
+      
+      console.warn('⚠️ No se pudo refrescar el token');
       return false;
     } catch (error) {
-      console.error('Error al refrescar token:', error);
+      console.error('❌ Error al refrescar token:', error);
       this.logout();
       return false;
     }
+  }
+
+  // ========== CLEAR AUTH (Útil para debugging) ==========
+
+  clearAuth() {
+    console.log('🧹 Limpiando autenticación completa...');
+    this.logout();
   }
 }
 
