@@ -29,22 +29,73 @@
 	);
 
 	const menuItems = [
-		{ label: "Dashboard", icon: "dashboard", href: "/", modulo: null as ModuloSistema | null },
-		{ label: "Usuarios y Roles", icon: "users", href: "/Usuarios_Roles", modulo: "usuarios" as ModuloSistema },
-		{ label: "Profesores", icon: "user", href: "/profesores", modulo: "profesores" as ModuloSistema },
-		{ label: "Retiros Tempranos", icon: "clock", href: "/retiros", modulo: "retiros_tempranos" as ModuloSistema },
-		{ label: "Incidentes", icon: "alert-triangle", href: "/incidentes", modulo: "incidentes" as ModuloSistema },
-		{ label: "Esquelas", icon: "clipboard-list", href: "/esquelas", modulo: "esquelas" as ModuloSistema },
-		{ label: "Administrativos", icon: "settings", href: "/administrativos", modulo: "administracion" as ModuloSistema },
+		{
+			label: "Dashboard",
+			icon: "dashboard",
+			href: "/",
+			modulo: null as ModuloSistema | null,
+		},
+		{
+			label: "Usuarios y Roles",
+			icon: "users",
+			href: "/Usuarios_Roles",
+			modulo: "usuarios" as ModuloSistema,
+		},
+		{
+			label: "Profesores",
+			icon: "user",
+			href: "/profesores",
+			modulo: "profesores" as ModuloSistema,
+		},
+		{
+			label: "Cursos",
+			icon: "book-open",
+			href: "/profesores/cursos",
+			modulo: "profesores" as ModuloSistema,
+		},
+		{
+			label: "Materias",
+			icon: "book",
+			href: "/profesores/materias",
+			modulo: "profesores" as ModuloSistema,
+		},
+		{
+			label: "Administrativos",
+			icon: "briefcase",
+			href: "/administrativos",
+			modulo: "administracion" as ModuloSistema,
+		},
+		{
+			label: "Retiros Tempranos",
+			icon: "clock",
+			href: "/retiros",
+			modulo: "retiros_tempranos" as ModuloSistema,
+		},
+		{
+			label: "Incidentes",
+			icon: "alert-triangle",
+			href: "/incidentes",
+			modulo: "incidentes" as ModuloSistema,
+		},
+		{
+			label: "Esquelas",
+			icon: "clipboard-list",
+			href: "/esquelas",
+			modulo: "esquelas" as ModuloSistema,
+		},
+		{
+			label: "Administración",
+			icon: "settings",
+			href: "/administracion",
+			modulo: "administracion" as ModuloSistema,
+		},
 	];
 
 	const reportesSubmenu = [
 		{
 			label: "Usuarios y Roles",
 			icon: "users",
-			items: [
-				{ label: "Listado de Usuarios", href: "/Usuarios_Roles" },
-			],
+			items: [{ label: "Listado de Usuarios", href: "/Usuarios_Roles" }],
 		},
 		{
 			label: "Estudiantes",
@@ -165,7 +216,7 @@
 </script>
 
 <svelte:head>
-  <link rel="icon" href={favicon} />
+	<link rel="icon" href={favicon} />
 </svelte:head>
 
 {#if currentPath === "/login"}
@@ -304,7 +355,8 @@
 			<header class="top-bar">
 				<div class="search-bar">
 					<input type="text" placeholder="Buscar..." />
-					<span class="search-icon">{@html getIconSvg("search")}</span>
+					<span class="search-icon">{@html getIconSvg("search")}</span
+					>
 				</div>
 				<div class="top-bar-actions">
 					<button class="action-btn notification-btn">
@@ -340,12 +392,12 @@
 	</div>
 {/if}
 
-<LogoutDialog 
-	bind:show={showLogoutDialog} 
+<LogoutDialog
+	bind:show={showLogoutDialog}
 	on:confirm={confirmLogout}
 	on:cancel={cancelLogout}
 />
 
 <style>
-	@import './layout.css';
+	@import "./layout.css";
 </style>
