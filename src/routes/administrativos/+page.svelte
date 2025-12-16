@@ -268,6 +268,10 @@
 									</div>
 								{/if}
 
+								<div class="rol-row">
+									<span class="rol-tag">{a.rol_usuario || 'Sin rol'}</span>
+								</div>
+
 								<div class="footer">
 									<div class="horas">
 										{@html getIconSvg('clock')}
@@ -566,6 +570,22 @@
 		border-radius: 6px;
 		font-size: 0.8rem;
 		color: black;
+	}
+
+	.rol-row {
+		display: flex;
+		gap: 6px;
+		margin-bottom: 10px;
+		flex-wrap: wrap;
+	}
+
+	.rol-tag {
+		background: #e0f2fe;
+		padding: 3px 10px;
+		border-radius: 6px;
+		font-size: 0.8rem;
+		color: #0369a1;
+		font-weight: 500;
 	}
 
 	.footer {

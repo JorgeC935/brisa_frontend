@@ -221,6 +221,10 @@
 			formErrors.ci = true;
 			errorMessages.ci = 'El CI es obligatorio';
 			isValid = false;
+		} else if (administrativoData.ci.trim().length < 7) {
+			formErrors.ci = true;
+			errorMessages.ci = 'El CI debe tener al menos 7 caracteres';
+			isValid = false;
 		}
 
 		// Validar Nombres
@@ -283,8 +287,21 @@
 		}
 		
 		if (!validarForm()) {
-			// Mostrar toast de error de validación
-			toastMessage = 'Por favor, complete todos los campos requeridos correctamente';
+			// Mostrar toast de error de validación con mensaje específico
+			// Priorizar mensaje del CI si existe
+			if (errorMessages.ci) {
+				toastMessage = errorMessages.ci;
+			} else if (errorMessages.nombres) {
+				toastMessage = errorMessages.nombres;
+			} else if (errorMessages.apellido_paterno) {
+				toastMessage = errorMessages.apellido_paterno;
+			} else if (errorMessages.id_cargo) {
+				toastMessage = errorMessages.id_cargo;
+			} else if (errorMessages.correo) {
+				toastMessage = errorMessages.correo;
+			} else {
+				toastMessage = 'Por favor, complete todos los campos requeridos correctamente';
+			}
 			toastType = 'error';
 			return;
 		}
@@ -336,10 +353,26 @@
 	}
 
 	async function eliminarAdministrativo() {
-		if (!administrativo) return;
+		if (!administrativo) {
+			toastMessage = 'No se encontró el administrativo a eliminar';
+			toastType = 'error';
+			return;
+		}
 
 		const id_persona = administrativo.id_persona || administrativo.id;
-		if (!id_persona) return;
+		if (!id_persona) {
+			toastMessage = 'Error: No se pudo identificar el administrativo a eliminar';
+			toastType = 'error';
+			return;
+		}
+
+		// Validar que el ID sea un número válido
+		const id_num = Number(id_persona);
+		if (isNaN(id_num) || id_num <= 0) {
+			toastMessage = 'Error: ID de administrativo inválido';
+			toastType = 'error';
+			return;
+		}
 
 		if (!confirm('¿Está seguro de eliminar este administrativo? Esta acción no se puede deshacer.')) {
 			return;
@@ -347,23 +380,29 @@
 
 		eliminando = true;
 		try {
-			await administrativosService.deleteAdministrativo(id_persona);
+			console.log('Eliminando administrativo con ID:', id_num);
+			await administrativosService.deleteAdministrativo(id_num);
 			toastMessage = 'Administrativo eliminado exitosamente';
 			toastType = 'success';
 			setTimeout(() => {
-				dispatch('delete', { id: id_persona });
+				dispatch('delete', { id: id_num });
 			}, 1000);
 		} catch (error: any) {
-			console.error('Error:', error);
+			console.error('Error al eliminar administrativo:', error);
 			// Extraer mensaje de error del backend
 			let errorMsg = 'Error al eliminar administrativo';
-			if (error.details?.detail) {
+			
+			// Priorizar mensajes de error de red/conexión
+			if (error.isNetworkError || error.status === 0) {
+				errorMsg = error.message || 'Error de conexión: No se pudo conectar con el servidor. Verifique su conexión a internet e intente nuevamente.';
+			} else if (error.details?.detail) {
 				errorMsg = error.details.detail;
 			} else if (error.details?.message) {
 				errorMsg = error.details.message;
 			} else if (error.message) {
 				errorMsg = error.message;
 			}
+			
 			toastMessage = errorMsg;
 			toastType = 'error';
 		} finally {
@@ -423,7 +462,7 @@
 				<h3>Información Personal</h3>
 				<div class="form-row single">
 					<div class="form-group">
-						<label class:error={formErrors.ci}>CI *</label>
+						<label>CI *</label>
 						<input
 							type="text"
 							bind:value={administrativoData.ci}
@@ -450,7 +489,7 @@
 
 				<div class="form-row">
 					<div class="form-group">
-						<label class:error={formErrors.nombres}>Nombres *</label>
+						<label>Nombres *</label>
 						<input
 							type="text"
 							bind:value={administrativoData.nombres}
@@ -468,7 +507,7 @@
 
 				<div class="form-row single">
 					<div class="form-group">
-						<label class:error={formErrors.apellido_paterno}>Apellido Paterno *</label>
+						<label>Apellido Paterno *</label>
 						<input
 							type="text"
 							bind:value={administrativoData.apellido_paterno}
@@ -499,7 +538,7 @@
 				<h3>Información de Contacto</h3>
 				<div class="form-row single">
 					<div class="form-group">
-						<label class:error={formErrors.correo}>Correo Electrónico</label>
+						<label>Correo Electrónico</label>
 						<input
 							type="email"
 							bind:value={administrativoData.correo}
@@ -541,7 +580,7 @@
 				<h3>Información Laboral</h3>
 				<div class="form-row single">
 					<div class="form-group">
-						<label class:error={formErrors.id_cargo}>Cargo *</label>
+						<label>Cargo *</label>
 						<select
 							bind:value={administrativoData.id_cargo}
 							on:change={() => validarCampo('id_cargo', administrativoData.id_cargo)}
@@ -586,7 +625,7 @@
 				</div>
 				<div class="form-row single">
 					<div class="form-group">
-						<label class:error={formErrors.horario_entrada}>Horario de Entrada *</label>
+						<label>Horario de Entrada *</label>
 						<input
 							type="time"
 							bind:value={administrativoData.horario_entrada}
@@ -600,7 +639,7 @@
 						{/if}
 					</div>
 					<div class="form-group">
-						<label class:error={formErrors.horario_salida}>Horario de Salida *</label>
+						<label>Horario de Salida *</label>
 						<input
 							type="time"
 							bind:value={administrativoData.horario_salida}
@@ -866,27 +905,24 @@
 		resize: vertical;
 		min-height: 80px;
 	}
-	label.error {
-		color: #dc2626;
-	}
 	input.error,
 	select.error {
-		border-color: #fca5a5;
-		background-color: #fef2f2;
-		box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+		border-color: #dc2626;
+		border-width: 2px;
+		background-color: #fff;
 	}
 	input.error:focus,
 	select.error:focus {
 		border-color: #dc2626;
-		box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+		box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
 	}
 	.error-message {
 		color: #dc2626;
-		font-size: 0.75rem;
-		margin-top: 4px;
-		line-height: 1.3;
+		font-size: 0.875rem;
+		margin-top: 6px;
+		line-height: 1.4;
 		display: block;
-		font-weight: 400;
+		font-weight: 500;
 	}
 	.spinner {
 		display: inline-block;

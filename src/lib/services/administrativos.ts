@@ -22,6 +22,7 @@ export type Administrativo = {
 	area_trabajo?: string;
 	observaciones?: string;
 	horas_semana?: number;
+	rol_usuario?: string;
 };
 
 export type Cargo = {

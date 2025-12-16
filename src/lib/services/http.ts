@@ -34,28 +34,50 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
 		}
 	};
 
-	const response = await fetch(url, config);
+	try {
+		const response = await fetch(url, config);
 
-	if (!response.ok) {
-		if (response.status === 401 && typeof window !== 'undefined') {
-			localStorage.removeItem('brisa_auth_token');
-			localStorage.removeItem('brisa_user_data');
-			window.location.href = '/login';
+		if (!response.ok) {
+			if (response.status === 401 && typeof window !== 'undefined') {
+				localStorage.removeItem('brisa_auth_token');
+				localStorage.removeItem('brisa_user_data');
+				window.location.href = '/login';
+			}
+			const errorData = await response.json().catch(() => ({}));
+			throw {
+				message: (errorData as any).message || `HTTP Error: ${response.status}`,
+				details: errorData,
+				status: response.status
+			};
 		}
-		const errorData = await response.json().catch(() => ({}));
+
+		// Si es 204 No Content, no hay body que parsear
+		if (response.status === 204) {
+			return null as T;
+		}
+
+		return response.json();
+	} catch (error: any) {
+		// Manejar errores de red (failed to fetch, timeout, etc.)
+		if (error.name === 'TypeError' && error.message.includes('fetch')) {
+			throw {
+				message: 'Error de conexión: No se pudo conectar con el servidor. Verifique su conexión a internet.',
+				details: { detail: 'Error de red: ' + error.message },
+				status: 0,
+				isNetworkError: true
+			};
+		}
+		// Si ya es un error formateado, re-lanzarlo
+		if (error.details || error.status) {
+			throw error;
+		}
+		// Error desconocido
 		throw {
-			message: (errorData as any).message || `HTTP Error: ${response.status}`,
-			details: errorData,
-			status: response.status
+			message: error.message || 'Error desconocido al realizar la petición',
+			details: { detail: error.message || 'Error desconocido' },
+			status: 0
 		};
 	}
-
-	// Si es 204 No Content, no hay body que parsear
-	if (response.status === 204) {
-		return null as T;
-	}
-
-	return response.json();
 }
 
 export const http = {
